@@ -38,16 +38,23 @@ jobs:
             --env-file .env.example \
             fit4110/access-gate:lab04
 
+      - name: Inspect Access Gate container
+        run: |
+          echo "===== docker ps -a ====="
+          docker ps -a
+          echo "===== access gate logs ====="
+          docker logs fit4110-access-gate-lab04 || true
+
       - name: Start Core Business mock
         run: |
           nohup npx prism mock contracts/core-business.openapi.yaml -p 4011 --host 127.0.0.1 > prism-core.log 2>&1 &
-          sleep 5
+          sleep 8
           echo "===== Core Business Mock Log ====="
           cat prism-core.log || true
 
       - name: Wait for services
         run: |
-          npx wait-on http://127.0.0.1:8000/health http://127.0.0.1:4011/health --timeout 60000
+          npx wait-on tcp:127.0.0.1:8000 tcp:127.0.0.1:4011 --timeout 60000
 
       - name: Smoke check services
         run: |
@@ -61,6 +68,8 @@ jobs:
       - name: Show logs on failure
         if: failure()
         run: |
+          echo "===== docker ps -a ====="
+          docker ps -a || true
           echo "===== Access Gate Container Logs ====="
           docker logs fit4110-access-gate-lab04 || true
           echo "===== Core Business Mock Logs ====="
