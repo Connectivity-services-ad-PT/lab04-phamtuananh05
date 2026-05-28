@@ -4,7 +4,7 @@
   "description": "FIT4110 Lab 04 - Docker packaging and Newman verification for Access Gate service",
   "private": true,
   "scripts": {
-    "lint:openapi": "npx spectral lint contracts/team-gate.openapi.yaml",
+    "lint:openapi": "npx spectral lint contracts/team-gate.openapi.yaml --ruleset .spectral.yaml",
     "test:local": "npx newman run postman/collections/team-gate.postman_collection.json -e postman/environments/team-gate_local.postman_environment.json -r cli,junit,htmlextra --reporter-junit-export reports/newman-lab04-local.xml --reporter-htmlextra-export reports/newman-lab04-local.html",
     "docker:build": "docker build -t fit4110/access-gate:lab04 .",
     "docker:run": "docker run --rm --name fit4110-access-gate-lab04 -p 8000:8000 --env-file .env.example fit4110/access-gate:lab04"

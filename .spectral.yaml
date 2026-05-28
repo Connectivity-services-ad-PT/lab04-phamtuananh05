@@ -1,0 +1,73 @@
+rules:
+  lab04-openapi-version:
+    description: Lab 04 yêu cầu dùng OpenAPI 3.1.0.
+    message: "File OpenAPI phải khai báo openapi: 3.1.0."
+    severity: error
+    given: "$"
+    then:
+      field: openapi
+      function: pattern
+      functionOptions:
+        match: "^3\\.1\\.0$"
+
+  lab04-require-info:
+    description: OpenAPI contract cần có info.
+    message: "Thiếu object info."
+    severity: error
+    given: "$"
+    then:
+      field: info
+      function: truthy
+
+  lab04-require-paths:
+    description: OpenAPI contract cần có paths.
+    message: "Thiếu object paths."
+    severity: error
+    given: "$"
+    then:
+      field: paths
+      function: truthy
+
+  lab04-require-components:
+    description: OpenAPI contract cần có components.
+    message: "Thiếu object components."
+    severity: warn
+    given: "$"
+    then:
+      field: components
+      function: truthy
+
+  lab04-operation-operationId-get:
+    description: Mỗi GET operation nên có operationId.
+    message: "GET operation thiếu operationId."
+    severity: warn
+    given: "$.paths.*.get"
+    then:
+      field: operationId
+      function: truthy
+
+  lab04-operation-summary-get:
+    description: Mỗi GET operation nên có summary.
+    message: "GET operation thiếu summary."
+    severity: warn
+    given: "$.paths.*.get"
+    then:
+      field: summary
+      function: truthy
+
+  lab04-operation-tags-get:
+    description: Mỗi GET operation nên có tags.
+    message: "GET operation thiếu tags."
+    severity: warn
+    given: "$.paths.*.get"
+    then:
+      field: tags
+      function: truthy
+
+  lab04-no-nullable:
+    description: OpenAPI 3.1 không dùng nullable.
+    message: "Không dùng nullable, hãy dùng type union với null."
+    severity: error
+    given: "$..nullable"
+    then:
+      function: falsy
