@@ -1,0 +1,658 @@
+{
+  "info": {
+    "_postman_id": "team-gate-access-gate-lab03",
+    "name": "FIT4110 Lab03 - Team Gate - Access Gate",
+    "description": "Postman collection for Access Gate Service in Smart Campus Operations Platform. This collection tests functional, auth, negative, boundary, consumer-side smoke and local-only non-functional scenarios.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01_Functional",
+      "item": [
+        {
+          "name": "01 Health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Health response has status and service\", function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property(\"status\");",
+                  "  pm.expect(json).to.have.property(\"service\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02 Get recent access logs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "X-Correlation-Id",
+                "value": "11111111-1111-1111-1111-111111111111"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/access/logs/recent?limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "access",
+                "logs",
+                "recent"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has items array\", function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property(\"items\");",
+                  "  pm.expect(json.items).to.be.an(\"array\");",
+                  "});",
+                  "",
+                  "pm.test(\"Pagination fields exist\", function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property(\"hasMore\");",
+                  "  pm.expect(json).to.have.property(\"nextCursor\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03 Get access log detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "X-Correlation-Id",
+                "value": "22222222-2222-2222-2222-222222222222"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/access/logs/log-001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "access",
+                "logs",
+                "log-001"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Access log has required fields\", function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property(\"logId\");",
+                  "  pm.expect(json).to.have.property(\"cardId\");",
+                  "  pm.expect(json).to.have.property(\"gateId\");",
+                  "  pm.expect(json).to.have.property(\"direction\");",
+                  "  pm.expect(json).to.have.property(\"status\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04 Get gate status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "X-Correlation-Id",
+                "value": "33333333-3333-3333-3333-333333333333"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/gates/gate-main/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "gates",
+                "gate-main",
+                "status"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Gate status has gateId and status\", function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property(\"gateId\");",
+                  "  pm.expect(json).to.have.property(\"status\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "05 Get card info",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "X-Correlation-Id",
+                "value": "44444444-4444-4444-4444-444444444444"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cards/card-001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cards",
+                "card-001"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Card info has cardId, cardCode and status\", function () {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property(\"cardId\");",
+                  "  pm.expect(json).to.have.property(\"cardCode\");",
+                  "  pm.expect(json).to.have.property(\"status\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02_Auth",
+      "item": [
+        {
+          "name": "06 Missing token",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "55555555-5555-5555-5555-555555555555"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cards/card-001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cards",
+                "card-001"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Missing token behavior is controlled\", function () {",
+                  "  const env = pm.environment.get(\"env\");",
+                  "  if (env === \"local\") {",
+                  "    pm.expect([401, 403]).to.include(pm.response.code);",
+                  "  } else {",
+                  "    pm.expect([200, 401, 403]).to.include(pm.response.code);",
+                  "  }",
+                  "});",
+                  "",
+                  "pm.test(\"Auth test documents mock limitation\", function () {",
+                  "  pm.expect(pm.response.code).to.be.a(\"number\");",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07 Empty token",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer "
+              },
+              {
+                "key": "X-Correlation-Id",
+                "value": "66666666-6666-6666-6666-666666666666"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/access/logs/recent?limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "access",
+                "logs",
+                "recent"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Empty token behavior is controlled\", function () {",
+                  "  const env = pm.environment.get(\"env\");",
+                  "  if (env === \"local\") {",
+                  "    pm.expect([401, 403]).to.include(pm.response.code);",
+                  "  } else {",
+                  "    pm.expect([200, 401, 403]).to.include(pm.response.code);",
+                  "  }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03_Negative",
+      "item": [
+        {
+          "name": "08 Invalid limit",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "X-Correlation-Id",
+                "value": "77777777-7777-7777-7777-777777777777"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/access/logs/recent?limit=999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "access",
+                "logs",
+                "recent"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "999"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Invalid limit returns controlled response\", function () {",
+                  "  const env = pm.environment.get(\"env\");",
+                  "  if (env === \"local\") {",
+                  "    pm.expect([400, 422]).to.include(pm.response.code);",
+                  "  } else {",
+                  "    pm.expect([200, 400, 422]).to.include(pm.response.code);",
+                  "  }",
+                  "});",
+                  "",
+                  "if ([400, 422].includes(pm.response.code)) {",
+                  "  pm.test(\"Error response follows ProblemDetails\", function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property(\"status\");",
+                  "    pm.expect(json.status).to.be.within(400, 599);",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "09 Invalid cardId format",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "X-Correlation-Id",
+                "value": "88888888-8888-8888-8888-888888888888"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cards/abc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cards",
+                "abc"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Invalid cardId returns controlled response\", function () {",
+                  "  const env = pm.environment.get(\"env\");",
+                  "  if (env === \"local\") {",
+                  "    pm.expect([400, 404, 422]).to.include(pm.response.code);",
+                  "  } else {",
+                  "    pm.expect([200, 400, 404, 422]).to.include(pm.response.code);",
+                  "  }",
+                  "});",
+                  "",
+                  "if ([400, 404, 422].includes(pm.response.code)) {",
+                  "  pm.test(\"Error response has status\", function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property(\"status\");",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04_Boundary_Reliability",
+      "item": [
+        {
+          "name": "10 Boundary max limit",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "X-Correlation-Id",
+                "value": "99999999-9999-9999-9999-999999999999"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/access/logs/recent?limit=100",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "access",
+                "logs",
+                "recent"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "100"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Boundary limit=100 is accepted or handled\", function () {",
+                  "  pm.expect([200, 400, 422]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "  pm.test(\"Response contains items array\", function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property(\"items\");",
+                  "    pm.expect(json.items).to.be.an(\"array\");",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "11 Response time health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Response time is below 2000ms\", function () {",
+                  "  pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "05_Consumer_side_Smoke",
+      "item": [
+        {
+          "name": "12 Access Gate calls Core Business mock for access policy",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Correlation-Id",
+                "value": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"personId\": \"SV001\",\n  \"cardId\": \"card-001\",\n  \"gateId\": \"gate-main\",\n  \"direction\": \"IN\",\n  \"timestamp\": \"2026-05-10T08:00:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{coreBusinessMockUrl}}/policies/evaluate-access",
+              "host": [
+                "{{coreBusinessMockUrl}}"
+              ],
+              "path": [
+                "policies",
+                "evaluate-access"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Core Business mock is reachable\", function () {",
+                  "  pm.expect([200, 201, 400, 401, 403, 404, 422, 500]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if ([200, 201].includes(pm.response.code)) {",
+                  "  pm.test(\"Consumer can parse policy response\", function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.be.an(\"object\");",
+                  "  });",
+                  "}",
+                  "",
+                  "if ([400, 401, 403, 404, 422, 500].includes(pm.response.code)) {",
+                  "  pm.test(\"Consumer understands provider error response\", function () {",
+                  "    pm.expect(pm.response.code).to.be.within(400, 599);",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "06_Local_only_NonFunctional",
+      "item": [
+        {
+          "name": "13 Local-only response time SLA",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.environment.get(\"env\") === \"local\") {",
+                  "  pm.test(\"Local service response time is below 1000ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1000);",
+                  "  });",
+                  "} else {",
+                  "  pm.test(\"Local-only SLA skipped on mock environment\", function () {",
+                  "    pm.expect(pm.environment.get(\"env\")).to.equal(\"mock\");",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": []
+}

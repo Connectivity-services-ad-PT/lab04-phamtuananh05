@@ -9,12 +9,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: "npm"
 
       - name: Install Node dependencies
@@ -24,29 +25,50 @@ jobs:
         run: npm run lint:openapi
 
       - name: Build Docker image
-        run: docker build -t fit4110/iot-ingestion:lab04 .
+        run: docker build -t fit4110/access-gate:lab04 .
 
-      - name: Run Docker container
+      - name: Tag Docker image
+        run: docker tag fit4110/access-gate:lab04 fit4110/access-gate:v0.1.0-team-gate
+
+      - name: Run Access Gate container
         run: |
           docker run -d --rm \
-            --name fit4110-iot-lab04 \
+            --name fit4110-access-gate-lab04 \
             -p 8000:8000 \
             --env-file .env.example \
-            fit4110/iot-ingestion:lab04
+            fit4110/access-gate:lab04
 
-      - name: Wait for service health
-        run: npx wait-on http://localhost:8000/health --timeout 30000
+      - name: Start Core Business mock
+        run: |
+          nohup npx prism mock contracts/core-business.openapi.yaml -p 4011 --host 127.0.0.1 > prism-core.log 2>&1 &
+          sleep 5
+          echo "===== Core Business Mock Log ====="
+          cat prism-core.log || true
+
+      - name: Wait for services
+        run: |
+          npx wait-on http://127.0.0.1:8000/health http://127.0.0.1:4011/health --timeout 60000
+
+      - name: Smoke check services
+        run: |
+          curl -i http://127.0.0.1:8000/health
+          curl -i http://127.0.0.1:4011/health
+          docker ps
 
       - name: Run Newman against Docker container
         run: npm run test:local
 
-      - name: Show container logs on failure
+      - name: Show logs on failure
         if: failure()
-        run: docker logs fit4110-iot-lab04 || true
+        run: |
+          echo "===== Access Gate Container Logs ====="
+          docker logs fit4110-access-gate-lab04 || true
+          echo "===== Core Business Mock Logs ====="
+          cat prism-core.log || true
 
-      - name: Stop container
+      - name: Stop Access Gate container
         if: always()
-        run: docker stop fit4110-iot-lab04 || true
+        run: docker stop fit4110-access-gate-lab04 || true
 
       - name: Upload Newman reports
         if: always()
